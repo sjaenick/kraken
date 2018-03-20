@@ -58,6 +58,7 @@ my $unclassified_out;
 my $classified_out;
 my $output_format = "legacy";
 my $outfile;
+my $use_dust = 0;
 
 GetOptions(
   "help" => \&display_help,
@@ -75,6 +76,7 @@ GetOptions(
   "output=s" => \$outfile,
   "preload" => \$preload,
   "paired" => \$paired,
+  "dust" => \$use_dust,
   "check-names" => \$check_names,
   "gzip-compressed" => \$gunzip,
   "bzip2-compressed" => \$bunzip2,
@@ -152,6 +154,7 @@ push @flags, "-o", $outfile if defined $outfile;
 push @flags, "-c", if $only_classified_output;
 push @flags, "-M", if $preload;
 push @flags, "-P", if $paired;
+push @flags, "-D", if $use_dust;
 
 # handle piping for decompression/merging
 my @pipe_argv;
@@ -236,6 +239,7 @@ Options:
                           Print no Kraken output for unclassified sequences
   --preload               Loads DB into memory before classification
   --paired                The two filenames provided are paired-end reads
+  --dust                  Use DUST sequence complexity filter
   --check-names           Ensure each pair of reads have names that agree
                           with each other; ignored if --paired is not specified
   --help                  Print this message
