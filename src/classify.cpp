@@ -22,6 +22,7 @@
 #include "krakenutil.hpp"
 #include "quickfile.hpp"
 #include "seqreader.hpp"
+#include "dnaduster.hpp"
 
 const size_t DEF_WORK_UNIT_SIZE = 500000;
 
@@ -48,6 +49,10 @@ bool Print_classified = false;
 bool Print_unclassified = false;
 bool Print_kraken = true;
 bool Populate_memory = false;
+bool doDUST = false;
+extern DNADuster duster;
+#pragma omp threadprivate (duster)
+DNADuster duster;
 bool Only_classified_kraken_output = false;
 uint32_t Minimum_hit_count = 1;
 map<uint32_t, uint32_t> Parent_map;
@@ -148,6 +153,7 @@ int main(int argc, char **argv) {
   }
   else
     Kraken_output = &cout;
+
 
   struct timeval tv1, tv2;
   gettimeofday(&tv1, NULL);
@@ -276,6 +282,14 @@ void classify_sequence(DNASequence &dna, ostringstream &koss,
   int64_t current_max_pos = 0;
 
   if (dna.seq.size() >= Database.get_k()) {
+
+    if (doDUST) {
+      size_t len = dna.seq.length() + 1;
+      char *tmp = new char[len];
+      strncpy(tmp, dna.seq.c_str(), len);
+      duster.dust(tmp);
+      dna.seq.assign(tmp, len);
+    }
     KmerScanner scanner(dna.seq);
     while ((kmer_ptr = scanner.next_kmer()) != NULL) {
       taxon = 0;
@@ -482,7 +496,7 @@ void parse_command_line(int argc, char **argv) {
 
   if (argc > 1 && strcmp(argv[1], "-h") == 0)
     usage(0);
-  while ((opt = getopt(argc, argv, "d:i:t:u:n:m:o:qfFPcC:O:U:M")) != -1) {
+  while ((opt = getopt(argc, argv, "d:i:t:u:n:m:o:qDfFPcC:O:U:M")) != -1) {
     switch (opt) {
       case 'd' :
         DB_filename = optarg;
@@ -518,6 +532,9 @@ void parse_command_line(int argc, char **argv) {
         break;
       case 'F' :
         Fastq_output = true;
+        break;
+      case 'D':
+        doDUST = true;
         break;
       case 'O' :
 	Output_format = optarg;
@@ -602,6 +619,7 @@ void usage(int exit_code) {
        << "  -C filename      Print classified sequences" << endl
        << "  -U filename      Print unclassified sequences" << endl
        << "  -O format        [Un]classified output format {legacy, paired}" << endl
+       << "  -D               Perform DUST masking" << endl
        << "  -f               Input is in FASTQ format" << endl
        << "  -F               Output in FASTQ format" << endl
        << "  -P               Input files are paired." << endl
