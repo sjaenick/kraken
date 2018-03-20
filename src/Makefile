@@ -20,7 +20,7 @@ set_lcas: krakendb.o quickfile.o krakenutil.o seqreader.o
 
 kmer_estimator: krakenutil.o seqreader.o
 
-classify: krakendb.o quickfile.o krakenutil.o seqreader.o
+classify: krakendb.o quickfile.o krakenutil.o seqreader.o dnaduster.o
 
 make_seqid_to_taxid_map: quickfile.o
 
@@ -35,3 +35,6 @@ seqreader.o: seqreader.cpp seqreader.hpp quickfile.hpp
 
 quickfile.o: quickfile.cpp quickfile.hpp
 	$(CXX) $(CXXFLAGS) -c quickfile.cpp
+
+dnaduster.o: dnaduster.cpp dnaduster.hpp
+	$(CXX) $(CXXFLAGS) -c dnaduster.cpp
