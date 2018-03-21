@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -Wall -fopenmp -O3
-PROGS = db_sort set_lcas classify make_seqid_to_taxid_map db_shrink kmer_estimator
+PROGS = db_sort set_lcas classify make_seqid_to_taxid_map db_shrink kmer_estimator dustmask
 
 .PHONY: all install clean
 
@@ -22,6 +22,8 @@ kmer_estimator: krakenutil.o seqreader.o
 
 classify: krakendb.o quickfile.o krakenutil.o seqreader.o dnaduster.o
 
+dustmask: seqreader.o dnaduster.o
+
 make_seqid_to_taxid_map: quickfile.o
 
 krakenutil.o: krakenutil.cpp krakenutil.hpp
@@ -38,3 +40,4 @@ quickfile.o: quickfile.cpp quickfile.hpp
 
 dnaduster.o: dnaduster.cpp dnaduster.hpp
 	$(CXX) $(CXXFLAGS) -c dnaduster.cpp
+
