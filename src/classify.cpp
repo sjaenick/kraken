@@ -288,7 +288,7 @@ void classify_sequence(DNASequence &dna, ostringstream &koss,
       char *tmp = new char[len];
       strncpy(tmp, dna.seq.c_str(), len);
       duster.dust(tmp);
-      dna.seq.assign(tmp, len);
+      dna.seq.assign(tmp, len-1);
     }
     KmerScanner scanner(dna.seq);
     while ((kmer_ptr = scanner.next_kmer()) != NULL) {
